@@ -1,0 +1,245 @@
+/*Reset*/
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    background: rgba(72, 3, 125, 0.922);
+    color: #263247;
+}
+
+header {
+    background: #344b78;
+    color: white;
+    padding: 20px 5%;
+}
+
+header h1 {
+    margin: 0 0 6px;
+}
+
+main {
+    max-width: 1100px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+.toolbar, .view-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+button, input, select {
+    font: inherit;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #cbd3e1;
+}
+
+button {
+    cursor: pointer;
+    background: white;
+    color: #263243;
+}
+
+button:hover {
+    background: #e8edf7;
+}
+
+.remove-button {
+    display: inline-block;
+    background-color: #891717;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.remove-button:hover {
+    background-color: #d32f2f;
+}
+
+.edit-button {
+    background-color: #64b5f6;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.edit-button:hover {
+    background-color: #1976d2;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+    outline: 3px solid #7197ed;
+    outline-offset: 3px;
+}
+
+.primary {
+    background: #344b78;
+    color: white;
+    border-color: #344b78;
+}
+
+.primary:hover {
+    background: #263a61;
+    color: white;
+}
+
+.active {
+    background: #dce6fa;
+    border-color: #344b78;
+}
+
+.panel {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px #172b4d12;
+}
+
+.event-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.event-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.event-form button {
+    align-self: end;
+}
+
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 5px;
+}
+
+.weekday {
+    text-align: center;
+    font-weight: bold;
+    padding: 10px 2px;
+}
+
+.day {
+    min-height: 105px;
+    padding: 6px;
+    border: 1px solid #e0e5ed;
+    border-radius: 6px;
+    background: #fff;
+    min-width: 0;
+}
+
+.day.today {
+    border: 2px solid #344b78;
+}
+
+.day-number {
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+.day.empty {
+    background: #f8f9fc;
+}
+
+.event {
+    display: block;
+    overflow-wrap: anywhere;
+    font-size: 12px;
+    padding: 5px;
+    margin-top: 4px;
+    border-radius: 4px;
+    background: #e0e9ff;
+    border-left: 3px solid #5478c7;
+}
+
+.event.assignment {
+    background: #fff0d6;
+    border-color: #d18b21;
+}
+
+.event.exam {
+    background: #ffe1e1;
+    border-color: #d64e4e;
+}
+
+.event-time {
+    font-weight: bold;
+}
+
+.list-event {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 15px 0;
+    border-bottom: 1px solid #e0e5ed;
+}
+
+.list-event h3 {
+    margin: 0 0 6px;
+}
+
+.list-event p {
+    margin: 4px 0;
+    color: #586579;
+}
+
+.empty-message {
+    color: #586579;
+    padding: 20px 0;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+@media (max-width: 600px) {
+    main {
+        padding: 0 10px;
+        margin-top: 15px;
+    }
+
+    .event-form {
+        grid-template-columns: 1fr;
+    }
+
+    .day {
+        min-height: 75px;
+        padding: 3px;
+    }
+
+    .weekday {
+        font-size: 12px;
+    }
+
+    .event {
+        font-size: 10px;
+        padding: 3px;
+    }
+
+    .list-event {
+        flex-direction: column;
+    }
+}
