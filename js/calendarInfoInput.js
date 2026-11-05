@@ -26,6 +26,7 @@ inputPanels.forEach(({id, title, description, href}) => {
     let panel
     if(href) {
         panel = document.createElement("a")
+        panel.href = href;
     } else {
         panel = document.createElement("section")
     }
