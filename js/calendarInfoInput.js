@@ -22,12 +22,18 @@ const inputPanels = [
 ]
 inputPanels.forEach(({id, title, description, href}) => {
 
-    const panel = document.createElement(href ? "a" : "section");
-    if (href) {
-        panel.href = href;
+    // create panel element <section> or <a> based on href value
+    let panel
+    if(href) {
+        panel = document.createElement("a")
+    } else {
+        panel = document.createElement("section")
     }
+
     panel.id = id;
     panel.className = "panel input-panel";
+
+    // setup screen reader for accessibility
     panel.setAttribute("aria-labelledby", `${id}-heading`);
 
     const heading = document.createElement("h2");

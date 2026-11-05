@@ -113,7 +113,7 @@ select:focus-visible {
     box-shadow: 0 2px 8px #172b4d12;
 }
 
-/* calendar data input panel */
+/* calendar data input panel layout setting*/
 .input-panels {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -229,7 +229,7 @@ select:focus-visible {
 [hidden] {
     display: none !important;
 }
-
+/* xiao added: responsive design part */
 @media (max-width: 600px) {
     .input-panels {
         grid-template-columns: 1fr;
