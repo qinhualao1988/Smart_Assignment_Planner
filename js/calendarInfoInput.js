@@ -48,24 +48,28 @@ inputPanels.forEach(({id, title, description}) => {
         setupUrlPanel(panelContainer, panel, summary)    // this one has two helpers
     }
 
+    // upload file panel
+    if (id === "upload-panel") {
+        setupUploadPanel(panelContainer, panel, summary)
+    }
+
     // add event on new assignment panel
     if (id === 'assignment-panel') {
         setupAssignmentPanel(panelContainer, panel, summary)
     }
 
-    //
 
     panelContainer.appendChild(panel);
 })
 
 /* the URL panel helpers */
 function expandInputPanel(panelContainer, panel, summary, content, focusElement) {
+
     const isExpand = panel.classList.contains(("is-expanded"))
 
     if(isExpand) {
         return
     }
-
 
     // Find the currently expanded panel.
     const currentPanel = panelContainer.querySelector(".is-expanded");
@@ -170,8 +174,46 @@ function setupUrlPanel(panelContainer, panel, summary) {
 }
 
 /* upload file panel */
-function setupUploadPanel(panel) {
+// Create the hidden content for the upload panel.
+function setupUploadPanel(panelContainer, panel, summary) {
+    // allow the panel t receive focus through JS
+    panel.tabIndex = -1
 
+    // Create the hidden content container.
+    const uploadContent = document.createElement("div");
+    uploadContent.className = "upload-panel-content panel-content";
+    uploadContent.hidden = true;
+
+    // Create the instruction text.
+    const instruction = document.createElement("p");
+    instruction.textContent = "Drag your .ics file here";
+
+    // Create the drop area.
+    const dropArea = document.createElement("div");
+    dropArea.className = "file-drop-area";
+
+    // Create the plus symbol.
+    const plusMark = document.createElement("span");
+    plusMark.textContent = "+";
+
+    // Assemble the upload content.
+    dropArea.appendChild(plusMark);
+
+    uploadContent.appendChild(instruction);
+    uploadContent.appendChild(dropArea);
+
+    panel.appendChild(uploadContent);
+
+    // add event handler
+    panel.addEventListener("click", function() {
+        expandInputPanel(
+            panelContainer,
+            panel,
+            summary,
+            uploadContent,
+            panel                 // why two panel argue??
+        )
+    })
 }
 
 /* manually add assignment panel function and related helpers */

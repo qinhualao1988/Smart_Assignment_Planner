@@ -269,6 +269,14 @@ select:focus-visible {
         minmax(0, 1fr);
 }
 
+/* Enlarge the second column when the upload panel is expanded. */
+.input-panels:has(> #upload-panel.is-expanded) {
+    grid-template-columns:
+        minmax(0, 1fr)
+        minmax(0, 2fr)
+        minmax(0, 1fr);
+}
+
 /* Enlarge the third column when the assignment panel is expanded. */
 .input-panels:has(> #assignment-panel.is-expanded) {
     grid-template-columns:
@@ -337,6 +345,49 @@ select:focus-visible {
     margin: 0;
 }
 
+/* Arrange the upload instruction and drop area vertically. */
+.upload-panel-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+}
+
+/* Remove default spacing around the instruction. */
+.upload-panel-content p {
+    margin: 0;
+}
+
+/* Create the dashed drop area and center the plus symbol. */
+.file-drop-area {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+
+    border: 2px dashed #7197ed;
+    border-radius: 10px;
+    background-color: #f5f7fc;
+}
+
+/* Make the plus symbol clearly visible. */
+.file-drop-area span {
+    font-size: 56px;
+    line-height: 1;
+    color: #344b78;
+}
+
+/* Arrange the expanded upload panel vertically. */
+#upload-panel.is-expanded {
+    display: flex;
+    flex-direction: column;
+}
+
 /* xiao added: responsive design part */
 @media (max-width: 600px) {
     /* Stack the panels in the initial view. */
@@ -345,7 +396,10 @@ select:focus-visible {
     }
 
     /* Use two equal columns in the expanded view. */
-    .input-panels.has-expanded-panel {
+    .input-panels.has-expanded-panel,
+    .input-panels:has(> #url-panel.is-expanded),
+    .input-panels:has(> #upload-panel.is-expanded),
+    .input-panels:has(> #assignment-panel.is-expanded) {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
