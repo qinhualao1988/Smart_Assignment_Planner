@@ -235,6 +235,13 @@ function setupAssignmentPanel(panelContainer, panel, summary) {
     createButton.className = "primary"
     createButton.textContent = "Create"
 
+    // add event handler on button
+    createButton.addEventListener("click", function (e) {
+        e.stopPropagation()
+
+        openDashboardPage()
+    })
+
     // add instruction and button t content container
     assignmentContent.appendChild(instruction)
     assignmentContent.appendChild(createButton)
@@ -246,7 +253,9 @@ function setupAssignmentPanel(panelContainer, panel, summary) {
     panel.addEventListener("click", function() {
         expandInputPanel(panelContainer, panel, summary, assignmentContent, createButton)
     })
-
 }
 
-
+// 3rd panel helper -- open dashboard page
+function openDashboardPage() {
+    window.location.href = "../html/dashboard.html"
+}
