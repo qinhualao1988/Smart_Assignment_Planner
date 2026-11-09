@@ -256,13 +256,25 @@ select:focus-visible {
     display: none !important;
 }
 
-/* Enlarge the URL panel while keeping the other columns equal. */
+/* Align the panels at the top. */
 .input-panels.has-expanded-panel {
+    align-items: start;
+}
+
+/* Enlarge the first column when the URL panel is expanded. */
+.input-panels:has(> #url-panel.is-expanded) {
     grid-template-columns:
         minmax(0, 2fr)
         minmax(0, 1fr)
         minmax(0, 1fr);
-    align-items: start;
+}
+
+/* Enlarge the third column when the assignment panel is expanded. */
+.input-panels:has(> #assignment-panel.is-expanded) {
+    grid-template-columns:
+        minmax(0, 1fr)
+        minmax(0, 1fr)
+        minmax(0, 2fr);
 }
 
 /* Keep every panel square when a panel is expanded. */
@@ -301,6 +313,28 @@ select:focus-visible {
 /* Hide scrollbars in browsers that use this selector. */
 .input-panels.has-expanded-panel > .input-panel::-webkit-scrollbar {
     display: none;
+}
+
+/* Center the heading and content inside the expanded assignment panel. */
+#assignment-panel.is-expanded {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+/* Arrange the assignment instruction and buttons vertically. */
+.assignment-panel-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+/* Remove default spacing around the instruction. */
+.assignment-panel-content p {
+    margin: 0;
 }
 
 /* xiao added: responsive design part */

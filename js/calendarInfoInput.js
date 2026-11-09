@@ -16,27 +16,19 @@ const inputPanels = [
     {
         id: "assignment-panel",
         title: "Add Assignment",
-        description: "Manually enter an assignment and its due date.",
-        href: "dashboard.html"
+        description: "Manually create an assignment."
     }
 ]
 
 // generate input panel
-inputPanels.forEach(({id, title, description, href}) => {
+inputPanels.forEach(({id, title, description}) => {
 
-    // create panel element <section> or <a> based on href value
-    let panel
-    if(href) {
-        panel = document.createElement("a")
-        panel.href = href;
-    } else {
-        panel = document.createElement("section")
-    }
+    const panel = document.createElement('section')
 
     panel.id = id;
     panel.className = "panel input-panel";
 
-    // setup screen reader for accessibility
+    // setup screen reader for accessibility -- optional
     panel.setAttribute("aria-labelledby", `${id}-heading`);
     
     // create panel title
@@ -46,49 +38,73 @@ inputPanels.forEach(({id, title, description, href}) => {
 
     // create panel short description
     const summary = document.createElement("p");
-    summary.textContent = description;
+    summary.className = "panel-summary"
+    summary.textContent = description
 
     panel.append(heading, summary);
 
-    //TODO: add form and event handler in the url panel
+    // add form and event handler in the url panel
     if (id === 'url-panel') {
         setupUrlPanel(panelContainer, panel, summary)    // this one has two helpers
     }
+
+    // add event on new assignment panel
+    if (id === 'assignment-panel') {
+        setupAssignmentPanel(panelContainer, panel, summary)
+    }
+
+    //
 
     panelContainer.appendChild(panel);
 })
 
 /* the URL panel helpers */
-function expandUrlPanel(panelContainer, panel, summary, urlForm, urlInput) {
+function expandInputPanel(panelContainer, panel, summary, content, focusElement) {
     const isExpand = panel.classList.contains(("is-expanded"))
 
     if(isExpand) {
         return
     }
 
+
+    // Find the currently expanded panel.
+    const currentPanel = panelContainer.querySelector(".is-expanded");
+
+    if (currentPanel) {
+        // Restore the current panel's summary and hide its content.
+        const currentSummary = currentPanel.querySelector(".panel-summary");
+        const currentContent = currentPanel.querySelector(".panel-content");
+
+        resetInputPanel(
+            panelContainer,
+            currentPanel,
+            currentSummary,
+            currentContent
+        );
+    }
+
     panelContainer.classList.add("has-expanded-panel")    // add class to panel container
     panel.classList.add("is-expanded")    // add class to panel
 
     summary.hidden = true     // summary is description in tag<p>
-    urlForm.hidden = false
+    content.hidden = false
 
-    urlInput.focus()    // focus() put caret in the input box directly w/o another click
+    focusElement.focus()    // focus() put caret in the input box directly w/o another click
 }
 
 function handlerUrlSubmit(event, urlInput) {
+
     event.preventDefault()    //prevent the browser's default form submission
-
     const url = urlInput.value.trim()
-
     console.log(url)
 }
 
-function resetUrlpanel(panelContainer, panel, summary, urlForm) {
+function resetInputPanel(panelContainer, panel, summary, content) {
     panelContainer.classList.remove("has-expanded-panel")
     panel.classList.remove("is-expanded")
 
     summary.hidden = false
-    urlForm.hidden = true
+    content.hidden = true
 }
 
 // helper function for add form and event handler in the url panel
@@ -97,7 +113,7 @@ function setupUrlPanel(panelContainer, panel, summary) {
     // Create the hidden form.
     const urlForm = document.createElement("form");
     urlForm.id = "url-import-form";
-    urlForm.className = "url-import-form";
+    urlForm.className = "url-import-form panel-content";
     urlForm.hidden = true;
 
     // Create the input label.
@@ -136,7 +152,7 @@ function setupUrlPanel(panelContainer, panel, summary) {
 
     // add click handler
     panel.addEventListener("click", function() {
-        expandUrlPanel(panelContainer, panel, summary, urlForm, urlInput)
+        expandInputPanel(panelContainer, panel, summary, urlForm, urlInput)
     })
 
     // add submit handler
@@ -149,10 +165,46 @@ function setupUrlPanel(panelContainer, panel, summary) {
         // prevent bubbling
         e.stopPropagation()
 
-        resetUrlpanel(panelContainer, panel, summary, urlForm)
+        resetInputPanel(panelContainer, panel, summary, urlForm)
     })
+}
+
+/* upload file panel */
+function setupUploadPanel(panel) {
 
 }
 
+/* manually add assignment panel function and related helpers */
+
+function setupAssignmentPanel(panelContainer, panel, summary) {
+
+    // content container
+    const assignmentContent = document.createElement("div")
+    assignmentContent.className = "assignment-panel-content panel-content"
+    assignmentContent.hidden = true
+
+    // instruction text
+    const instruction = document.createElement("p")
+    instruction.textContent = "Create a New Assignment"
+
+    // button
+    const createButton = document.createElement("button")
+    createButton.type = "button"
+    createButton.className = "primary"
+    createButton.textContent = "Create"
+
+    // add instruction and button t content container
+    assignmentContent.appendChild(instruction)
+    assignmentContent.appendChild(createButton)
+
+    // add the hidden content to the panel
+    panel.appendChild(assignmentContent)
+
+    // add handler
+    panel.addEventListener("click", function() {
+        expandInputPanel(panelContainer, panel, summary, assignmentContent, createButton)
+    })
+
+}
 
 
