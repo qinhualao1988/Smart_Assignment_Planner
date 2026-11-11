@@ -119,9 +119,45 @@ function handlerUrlSubmit(event, urlInput) {
             if (events.error) {
                 throw new Error(events.error)
             }
+
+            // read existing dashboard events
+            const saveEvents = JSON.parse(
+                localStorage.getItem("plannerEvents") || "[]"
+            )
+
+            // avoid add the same event
+            const newEvents = events.filter(event => {
+                return !saveEvents.some(savedEvent =>
+                    event.sourceId &&
+                    savedEvent.sourceId === event.sourceId &&
+                    savedEvent.date === event.date &&
+                    savedEvent.time === event.time
+                )
+            })
+
+            // append imported events
+            const importedEvents = saveEvents.concat(newEvents)
+
+            // save for the dashboard
+            localStorage.setItem("plannerEvents", JSON.stringify(importedEvents))
+
             // for testing
             console.log(JSON.stringify(events, null, 2))
+            console.log("Backend returned:", events.length);
+            console.log("New events after deduplication:", newEvents.length);
+
+            const storedEvents = JSON.parse(
+                localStorage.getItem("plannerEvents") || "[]"
+            );
+
+            console.log("Total saved:", storedEvents.length);
+            console.table(storedEvents);
+
+            // url import success feedback
             alert("Calendar imported successfully")
+
+            // transit to the dashboard page
+            window.location.href = "/html/dashboard.html"
         })
         .catch(error => {
             console.error(error)
