@@ -73,24 +73,33 @@ def calendar():
         cal = Calendar.from_ical(response.content)    # convert original content to ics object
         events = []
 
-        # analyze ics content based on a example from a ics file
+        import_id = int(datetime.now().timestamp() * 1000)
+
+        '''
+        * analyze ics content based on a example from a ics file
+        * convert key names based on dashboard page
+        '''
         for component in cal.walk("VEVENT"):
             # mark start and end in each component(event)
             start = component.decoded("DTSTART", None)
-            end = component.decoded("DTEND", None)
+
+            # dashboard needs a date to display the event
+            if start is None:
+                continue
+
+            if isinstance(start, datetime):
+                event_time = start.strftime("%H:%M")
+            else:
+                event_time = ""
 
             # turn ics format into json format
             event = {
-                "id": str(component.get("UID", "")),
+                "id": import_id + len(events),
+                "sourceId": str(component.get("UID", "")),
                 "title": str(component.get("SUMMARY", "")),
-                "description": str(component.get("DESCRIPTION", "")),
-                "location": str(component.get("LOCATION", "")),
-                "start": start.isoformat() if start is not None else None,
-                "end": end.isoformat() if end is not None else None,
-                "allDay": (
-                    start is not None
-                    and not isinstance(start, datetime)
-                )
+                "date": start.strftime("%Y-%m-%d"),
+                "time": event_time,
+                "category": "assignment"    # hardcode category for now
             }
 
             events.append(event)
