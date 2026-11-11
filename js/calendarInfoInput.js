@@ -99,8 +99,33 @@ function expandInputPanel(panelContainer, panel, summary, content, focusElement)
 function handlerUrlSubmit(event, urlInput) {
 
     event.preventDefault()    //prevent the browser's default form submission
-    const url = urlInput.value.trim()
-    console.log(url)
+
+    const url = urlInput.value.trim()    // read user pasted url value
+
+    /* fetch calendar information
+     * send url value to 'flask'
+     * correspond with @app.post("/api/calendar") in server.py
+     */
+    fetch("/api/calendar", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({url: url})    // e.g: {url: "httpss//example.com/calendar.ics"}
+    })
+        .then(response => response.json())
+        .then(events => {
+            // handle event error
+            if (events.error) {
+                throw new Error(events.error)
+            }
+            // for testing
+            console.log(JSON.stringify(events, null, 2))
+            alert("Calendar imported successfully")
+        })
+        .catch(error => {
+            console.error(error)
+        })
 }
 
 function resetInputPanel(panelContainer, panel, summary, content) {
@@ -217,7 +242,6 @@ function setupUploadPanel(panelContainer, panel, summary) {
 }
 
 /* manually add assignment panel function and related helpers */
-
 function setupAssignmentPanel(panelContainer, panel, summary) {
 
     // content container
