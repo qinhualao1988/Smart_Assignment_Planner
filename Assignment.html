@@ -1,0 +1,55 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Assignment Management</title>
+    <link rel="stylesheet" href="Assignment.css">
+</head>
+<body>
+
+<div class="container">
+
+    <header>
+        <h1>Assignment Management</h1>
+        <p>Manage and track your assignments</p>
+    </header>
+
+    <section class="toolbar">
+        <input type="text" id="search"
+               placeholder="Search assignments...">
+
+        <select id="filter">
+            <option value="all">All Status</option>
+            <option value="Not Started">Not Started</option>
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+        </select>
+
+        <select id="sort">
+            <option value="default">Sort By</option>
+            <option value="name">Assignment Name</option>
+            <option value="date">Due Date</option>
+            <option value="progress">Progress</option>
+            <option value="status">Assignment Status</option>
+        </select>
+    </section>
+
+    <section id="assignmentList"
+             class="assignment-grid">
+    </section>
+
+    <section id="details" class="details">
+        <h2>Assignment Details</h2>
+        <p>Select an assignment to view details.</p>
+    </section>
+
+</div>
+
+<script src="Assignment.js"></script>
+</body>
+</html>

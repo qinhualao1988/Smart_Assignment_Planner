@@ -1,0 +1,253 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background:rgba(72, 3, 125, 0.922);
+    padding: 20px;
+}
+
+.container {
+    max-width: 1100px;
+    margin: auto;
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+}
+
+header {
+    margin-bottom: 25px;
+}
+
+header h1 {
+    color: #243b64;
+    font-size: 28px;
+}
+
+header p {
+    color: #777;
+    margin-top: 8px;
+}
+
+.toolbar {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+input, select {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #ddd;
+    border-radius: 7px;
+    font-size: 15px;
+    background: white;
+}
+
+.assignment-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+}
+
+.assignment-card {
+    border: 1px solid #e1e5ed;
+    padding: 20px;
+    border-radius: 10px;
+    background: #fff;
+}
+
+.assignment-card h3 {
+    color: #243b64;
+    margin-bottom: 12px;
+}
+
+.assignment-card p {
+    margin: 9px 0;
+    color: #555;
+}
+
+.progress-bar {
+    background: #e6eaf0;
+    height: 9px;
+    border-radius: 10px;
+    margin: 12px 0;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: #2878d0;
+    border-radius: 10px;
+}
+
+.status {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    background: #e9f1ff;
+    color: #2464ad;
+}
+.status.not-started{
+    background: #eeeeee;
+    color: 555555;
+}
+.status.pending{
+    background: fff1d6;
+    color: #986400;
+}
+.status.in-progress{
+    background:#e1efff;
+    color: #1765b1;
+}
+.status.completed{
+    background: #dcf7e5;
+    color: #168044;
+}
+button {
+    padding: 12px 15px;
+    border: none;
+    border-radius: 7px;
+    background: #043870;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 12px;
+    min-height: 44px;
+}
+
+button:hover {
+    background: #165da8;
+}
+
+.details {
+    margin-top: 25px;
+    padding: 20px;
+    background: #f0f4fa;
+    border-radius: 10px;
+}
+
+.details h2 {
+    color: #243b64;
+    margin-bottom: 15px;
+}
+
+.details p {
+    margin: 10px 0;
+}
+
+/* TABLET */
+@media (max-width: 768px) {
+    body {
+        padding: 12px;
+    }
+
+    .container {
+        padding: 18px;
+    }
+
+    .toolbar {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .toolbar input {
+        grid-column: 1 / -1;
+    }
+
+    .assignment-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* MOBILE */
+@media (max-width: 480px) {
+    body {
+        padding: 8px;
+    }
+
+    .container {
+        padding: 14px;
+        border-radius: 8px;
+    }
+
+    header h1 {
+        font-size: 22px;
+    }
+
+    .toolbar {
+        grid-template-columns: 1fr;
+    }
+
+    .toolbar input {
+        grid-column: auto;
+    }
+
+    input, select {
+        font-size: 16px;
+        min-height: 46px;
+    }
+
+    .assignment-card {
+        padding: 15px;
+    }
+
+    button {
+        width: 100%;
+        min-height: 46px;
+        margin-top: 10px;
+    }
+
+    .details {
+        padding: 15px;
+    }
+}
+
+.assignment-card {
+    border: 1px solid #e1e5ed;
+    padding: 20px;
+    border-radius: 10px;
+    background: #fff;
+
+    /* Smooth hover animation */
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+/* Highlight when pointer is over the card */
+.assignment-card:hover {
+    background: #eef5ff;
+    border-color: #2878d0;
+    box-shadow: 0 8px 20px rgba(40, 120, 208, 0.18);
+    transform: translateY(-5px);
+}
+
+/* Highlight the assignment title */
+.assignment-card:hover h3 {
+    color: #2878d0;
+}
+
+/* Button hover effect */
+.assignment-card button:hover {
+    background: #124f91;
+    transform: scale(1.03);
+}
+
+/* Keyboard accessibility */
+.assignment-card:focus-within {
+    outline: 2px solid #2878d0;
+    outline-offset: 3px;
+}
+
+/* Disable movement for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .assignment-card,
+    .assignment-card button {
+        transition: none;
+    }
+}
