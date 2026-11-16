@@ -21,7 +21,7 @@ def index():
 @app.get("/<filename>")
 def page_asset(filename):
     allowed = {
-        "html/calendarInfoInput.html"
+        "html/calendarInfoInput.html",
         "js/calendarInfoInput.js",
         "html/dashboard.html", "js/plannerScript.js", "planner.css",
     }
@@ -33,6 +33,44 @@ def page_asset(filename):
 @app.get("/fetchIcsUrl.js")
 def javascript():
     return send_from_directory(app.root_path, "fetchIcsUrl.js")
+
+# helper for parsing ics info for both url import and ics file import
+def parse_calendar_events(ics_content):
+    cal = Calendar.from_ical(ics_content)    # convert original content to ics object
+    events = []
+
+    import_id = int(datetime.now().timestamp() * 1000)
+
+    '''
+    * analyze ics content based on a example from a ics file
+    * convert key names based on dashboard page
+    '''
+    for component in cal.walk("VEVENT"):
+        # mark start and end in each component(event)
+        start = component.decoded("DTSTART", None)
+
+        # dashboard needs a date to display the event
+        if start is None:
+            continue
+
+        if isinstance(start, datetime):
+            event_time = start.strftime("%H:%M")
+        else:
+            event_time = ""
+
+        # turn ics format into json format
+        event = {
+            "id": import_id + len(events),
+            "sourceId": str(component.get("UID", "")),
+            "title": str(component.get("SUMMARY", "")),
+            "date": start.strftime("%Y-%m-%d"),
+            "time": event_time,
+            "category": "assignment"    # hardcode category for now
+        }
+
+        events.append(event)
+
+    return events
 
 
 @app.post("/api/calendar")    # receive request from frontend(fetch("/api/calendar")...)
@@ -70,39 +108,7 @@ def calendar():
 
     # 2. analyze ICS
     try:
-        cal = Calendar.from_ical(response.content)    # convert original content to ics object
-        events = []
-
-        import_id = int(datetime.now().timestamp() * 1000)
-
-        '''
-        * analyze ics content based on a example from a ics file
-        * convert key names based on dashboard page
-        '''
-        for component in cal.walk("VEVENT"):
-            # mark start and end in each component(event)
-            start = component.decoded("DTSTART", None)
-
-            # dashboard needs a date to display the event
-            if start is None:
-                continue
-
-            if isinstance(start, datetime):
-                event_time = start.strftime("%H:%M")
-            else:
-                event_time = ""
-
-            # turn ics format into json format
-            event = {
-                "id": import_id + len(events),
-                "sourceId": str(component.get("UID", "")),
-                "title": str(component.get("SUMMARY", "")),
-                "date": start.strftime("%Y-%m-%d"),
-                "time": event_time,
-                "category": "assignment"    # hardcode category for now
-            }
-
-            events.append(event)
+        events = parse_calendar_events(response.content)
 
     # handle exception
     except Exception:
@@ -112,6 +118,23 @@ def calendar():
         return jsonify({"error": "No events found. Please provide another calendar URL."}), 422
 
     # 3. turn ics into json
+    return jsonify(events)
+
+# receive .ics file from browser request
+@app.post("/api/calendar/upload")
+def upload_calendar():
+    file = request.files.get("file")
+
+    if file is None:
+        return jsonify({"error": "No file received."}), 400
+    try:
+        events = parse_calendar_events(file.read())
+
+    except Exception:
+        return jsonify({
+            "error": "Could not parse the ICS file"
+        }), 422
+
     return jsonify(events)
 
 
