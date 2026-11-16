@@ -261,6 +261,35 @@ function setupUploadPanel(panelContainer, panel, summary) {
     dropArea.appendChild(plusMark);
 
     uploadContent.appendChild(instruction);
+
+    // 'dragover' event handler
+    // activate when 'dragover' a file hovering this panel
+    panel.addEventListener("dragover", function(e) {
+        e.preventDefault()
+        e.dataTransfer.dropEffect = "copy"
+    })
+
+    // 'drop' event handler
+    panel.addEventListener("drop", function(e) {
+        // prevent browser open file directly
+        e.preventDefault()
+
+        expandInputPanel(
+            panelContainer,
+            panel,
+            summary,
+            uploadContent,
+            panel
+        )
+
+        // get dropped file
+        const file = e.dataTransfer.files[0]
+        handleFileUpload(file, instruction)
+
+        // for testing
+        console.log("dropped files: ", file)
+    })
+
     uploadContent.appendChild(dropArea);
 
     panel.appendChild(uploadContent);
@@ -274,6 +303,64 @@ function setupUploadPanel(panelContainer, panel, summary) {
             uploadContent,
             panel                 // why two panel argue??
         )
+    })
+}
+
+// upload panel helper function
+function handleFileUpload(file, instruction) {
+    // no uploaded file handling
+    if(!file) {
+        return
+    }
+
+    const formData = new FormData()
+    formData.append("file", file)
+
+    instruction.textContent = "Importing calendar..."
+
+    return fetch("/api/calendar/upload", {
+        method: "POST",
+        body: formData
+    }).then(response => {
+        return response.json().then(data => {
+            if (!response.ok) {
+                throw new Error(data.error || "Imported Failed.")
+            }
+
+            return data
+        })
+    }).then(events => {
+        // read existing dashboard events
+        const savedEvents = JSON.parse(
+            localStorage.getItem("plannerEvents") || "[]"
+        )
+
+        // avoid adding the same event
+        const newEvents = events.filter(event => {
+            return !savedEvents.some(savedEvents => 
+                event.sourceId &&
+                savedEvents.sourceId === event.sourceId &&
+                savedEvents.date === event.date &&
+                savedEvents.time === event.time
+            )
+        })
+
+        const importedEvents = savedEvents.concat(newEvents)
+
+        // save for the dashboard
+        localStorage.setItem(
+            "plannerEvents",
+            JSON.stringify(importedEvents)
+        )
+
+        // file import feedback
+        alert(`Imported ${newEvents.length} new events.`)
+
+        window.location.href = "/html/dashboard.html"
+
+    }).catch(error => {
+        instruction.textContent = error.message
+        console.log(error)
     })
 }
 
