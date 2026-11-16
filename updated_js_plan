@@ -1,0 +1,706 @@
+const form = document.getElementById("event-form");
+const titleInput = document.getElementById("event-title");
+const dateInput = document.getElementById("event-date");
+const timeInput = document.getElementById("event-time");
+const categoryInput = document.getElementById("event-category");
+
+const calendarGrid = document.getElementById("calendar-grid");
+const eventList = document.getElementById("event-list");
+const heading = document.getElementById("view-heading");
+
+const calendarView = document.getElementById("calendar-view");
+const listView = document.getElementById("list-view");
+
+const calendarButton = document.getElementById("calendar-button");
+const listButton = document.getElementById("list-button");
+
+const today = new Date();
+//Plan functionality elements
+const plansButton = document.getElementById("plans-button");
+const plansView = document.getElementById("plans-view");
+const plansContainer = document.getElementById("plans-container");
+const addPlanButton = document.getElementById("add-plan-button");
+const planForm = document.getElementById("plan-form");
+const planTitleInput = document.getElementById("plan-title");
+const planDescriptionInput = document.getElementById("plan-description");
+const planTargetDateInput = document.getElementById("plan-target-date");
+const cancelPlanButton = document.getElementById("cancel-plan-button");
+const planItemForm = document.getElementById("plan-item-form");
+const planItemTitleInput = document.getElementById("plan-item-title");
+const planItemTypeInput = document.getElementById("plan-item-type");
+const cancelItemButton = document.getElementById("cancel-item-button");
+
+let displayedMonth = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    1
+);
+
+let editingEventId = null;
+let editingItemId = null;
+let activePlanId = null;
+
+// Retain inputs between sessions
+const STORAGE_KEY = "plannerEvents";
+
+function loadPlans() {
+    try {
+        const savedPlans = localStorage.getItem(PLANS_STORAGE_KEY);
+        const parsedPlans = savedPlans ? JSON.parse(savedPlans) : [];
+        return Array.isArray(parsedPlans) ? parsedPlans : [];
+    } catch (error) {
+        console.error("Error loading plans:", error);
+        return [];
+    }
+}
+const PLANS_STORAGE_KEY = "plannerPlans";
+let plans = loadPlans();
+
+function loadEvents() {
+    try {
+        const savedEvents = localStorage.getItem(STORAGE_KEY);
+        if (savedEvents === null) {
+            return [];
+        }
+
+        const parsedEvents = JSON.parse(savedEvents);
+        return Array.isArray(parsedEvents) ? parsedEvents : [];
+    } catch (error) {
+        console.error("Saved events could not be loaded:", error);
+        return [];
+    }
+}
+let events = loadEvents();
+
+function formatDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+}
+
+dateInput.value = formatDate(today);
+
+function formatDisplayDate(dateString) {
+    return new Date(dateString + "T12:00:00").toLocaleDateString(
+        undefined,
+        {
+            weekday: "short",
+            month: "short",
+            day: "numeric",
+            year: "numeric"
+        }
+    );
+}
+
+function sortedEvents() {
+    return [...events].sort((a, b) =>
+        a.date.localeCompare(b.date) ||
+        a.time.localeCompare(b.time) ||
+        a.id - b.id
+    );
+}
+
+function createEventElement(event) {
+    const element = document.createElement("div");
+    element.className = `event ${event.category}`;
+
+    const time = document.createElement("span");
+    time.className = "event-time";
+    time.textContent = event.time ? event.time + " " : "";
+
+    const title = document.createElement("span");
+    title.textContent = event.title;
+
+    element.append(time, title);
+    element.title = event.title;
+
+    return element;
+}
+
+function renderCalendar() {
+    calendarGrid.replaceChildren();
+
+    const year = displayedMonth.getFullYear();
+    const month = displayedMonth.getMonth();
+
+    heading.textContent = displayedMonth.toLocaleDateString(
+        undefined,
+        { month: "long", year: "numeric" }
+    );
+
+    const weekdays = [
+        "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
+    ];
+
+    weekdays.forEach(day => {
+        const label = document.createElement("div");
+        label.className = "weekday";
+        label.textContent = day;
+        calendarGrid.appendChild(label);
+    });
+
+    const firstWeekday = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    // Add empty cells before the first day of the month.
+    for (let i = 0; i < firstWeekday; i++) {
+        const empty = document.createElement("div");
+        empty.className = "day empty";
+        empty.setAttribute("aria-hidden", "true");
+        calendarGrid.appendChild(empty);
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(year, month, day);
+        const dateString = formatDate(date);
+
+        const cell = document.createElement("div");
+        cell.className = "day";
+
+        if (dateString === formatDate(today)) {
+            cell.classList.add("today");
+        }
+
+        const number = document.createElement("div");
+        number.className = "day-number";
+        number.textContent = day;
+        cell.appendChild(number);
+
+        const dayEvents = sortedEvents().filter(
+            event => event.date === dateString
+        );
+
+        dayEvents.forEach(event => {
+            cell.appendChild(createEventElement(event));
+        });
+
+        calendarGrid.appendChild(cell);
+    }
+}
+
+function renderList() {
+    eventList.replaceChildren();
+
+    const upcoming = sortedEvents().filter(
+        event => event.date >= formatDate(today)
+    );
+
+    if (upcoming.length === 0) {
+        const message = document.createElement("p");
+        message.className = "empty-message";
+        message.textContent = "No upcoming events yet.";
+        eventList.appendChild(message);
+        return;
+    }
+
+    upcoming.forEach(event => {
+        const item = document.createElement("article");
+        item.className = "list-event";
+
+        const details = document.createElement("div");
+
+        const title = document.createElement("h3");
+        title.textContent = event.title;
+
+        const date = document.createElement("p");
+        date.textContent = formatDisplayDate(event.date);
+
+        const category = document.createElement("p");
+        category.textContent =
+            event.category.charAt(0).toUpperCase() +
+            event.category.slice(1);
+
+        details.append(title, date, category);
+
+        if (event.time) {
+            const time = document.createElement("p");
+            time.textContent = event.time;
+            details.appendChild(time);
+        }
+
+        const editButton = document.createElement("button");
+        editButton.type = "button";
+        editButton.textContent = "Edit";
+        editButton.className = "edit-button";
+
+        editButton.addEventListener("click", () => {
+            editEvent(event.id);
+        });
+
+        const removeButton = document.createElement("button");
+        removeButton.type = "button";
+        removeButton.textContent = "Remove";
+        removeButton.className = "remove-button";
+
+        removeButton.addEventListener("click", () => {
+            removeEvent(event.id);
+        });
+
+        item.append(details, editButton, removeButton);
+        eventList.appendChild(item);
+    });
+}
+
+function renderPlans() {
+    plansContainer.replaceChildren();
+
+    if (plans.length === 0) {
+        const message = document.createElement("p");
+        message.className = "empty-message";
+        message.textContent = "You haven't created any plans yet.";
+        plansContainer.appendChild(message);
+        return;
+    }
+
+    plans.forEach(plan => {
+        //Ensure all plans have an items array
+        if (!Array.isArray(plan.items)) {
+            plan.items = [];
+        }
+        const card = document.createElement("article");
+        card.className = "plan-card";
+        const title = document.createElement("h3");
+        title.textContent = plan.title;
+        const description = document.createElement("p");
+        description.textContent = plan.description || "\n" ;
+        card.append(title, description);
+
+        if (plan.targetDate) {
+            const targetDate = document.createElement("p");
+            targetDate.textContent =
+                "Target Date: " + formatDisplayDate(plan.targetDate);
+            card.appendChild(targetDate);
+        }
+        //Calculate Progress
+        const totalItems = plan.items.length;
+        const completedItems = plan.items.filter(
+            item => item.completed
+        ).length;
+        const progress = totalItems === 0 ? 0
+        : Math.round((completedItems / totalItems) * 100);
+        //Show Progress Text
+        const progressText = document.createElement("p");
+        progressText.textContent =
+            `Progress: ${progress}% (${completedItems}/${totalItems})`;
+        card.appendChild(progressText);
+        //Show Progress Bar
+        const progressBar = document.createElement("progress");
+        progressBar.max = 100;
+        progressBar.value = progress;
+        //Change the color of the progress bar based on completion %
+        if (progress < 25) {
+            progressBar.classList.add("progress-red");
+        } else if (progress < 50) {
+            progressBar.classList.add("progress-orange");
+        } else if (progress < 100) {
+            progressBar.classList.add("progress-yellow");
+        } else {
+            progressBar.classList.add("progress-green");
+        }
+        card.appendChild(progressBar);
+        //Create Item List
+        const itemList = document.createElement("ul");
+        itemList.className = "plan-item-list";
+        plan.items.forEach(item => {
+            const listItem = document.createElement("li");
+        //Checkbox for Completion
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = item.completed;
+        checkbox.addEventListener("change", () => {
+            item.completed = checkbox.checked;
+            localStorage.setItem(
+                PLANS_STORAGE_KEY,
+                JSON.stringify(plans)
+            );
+            renderPlans();
+        });
+        //Item Title & Type
+        const itemLabel = document.createElement("span");
+        itemLabel.textContent = `${item.title} (${item.type})`;
+        if (item.completed) {
+            itemLabel.classList.add("completed-item");
+        }
+        //Edit Button
+        const editButton = document.createElement("button");
+        editButton.type = "button";
+        editButton.textContent = "Edit";
+        editButton.addEventListener("click", () => {
+            editPlanItem(plan.id, item.id);
+        });
+        //Delete Button
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.textContent = "Delete";
+        deleteButton.addEventListener("click", () => {
+            deletePlanItem(plan.id, item.id);
+        });
+        listItem.append(checkbox, itemLabel, editButton, deleteButton);
+        itemList.appendChild(listItem);
+        });
+        card.appendChild(itemList);
+        //Add Task Button
+        const addItemButton = document.createElement("button");
+        addItemButton.type = "button";
+        addItemButton.textContent = "Add Task";
+        addItemButton.addEventListener("click", () => {
+            activePlanId = plan.id;
+            editingItemId = null;
+            planItemForm.reset();
+            planItemForm.querySelector(
+                'button[type="submit"]'
+            ).textContent = "Add Task";
+            planItemForm.hidden = false;
+            planItemTitleInput.focus();
+        });
+        card.appendChild(addItemButton);
+        plansContainer.appendChild(card);
+        //Delete Plan Button
+        const deletePlanButton = document.createElement("button");
+        deletePlanButton.type = "button";
+        deletePlanButton.textContent = "Delete Plan";
+
+        deletePlanButton.addEventListener("click", () => {
+            deletePlan(plan.id);
+        });
+        card.appendChild(deletePlanButton);
+    });
+}
+
+function removeEvent(eventId) {
+    const selectedEvent = events.find(
+        event => event.id === eventId
+    );
+
+    if (!selectedEvent) return;
+
+    const confirmed = confirm(
+        `Are you sure you want to delete "${selectedEvent.title}"?`
+    );
+
+    if (!confirmed) return;
+
+    events = events.filter(event => event.id !== eventId);
+
+    localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(events)
+    );
+
+    render();
+
+    alert("Task Deleted Successfully");
+}
+
+function editEvent(eventId) {
+    const selectedEvent = events.find(
+        event => event.id === eventId
+    );
+
+    if (!selectedEvent) 
+        return;
+
+    editingEventId = eventId;
+
+    titleInput.value = selectedEvent.title;
+    dateInput.value = selectedEvent.date;
+    timeInput.value = selectedEvent.time;
+    categoryInput.value = selectedEvent.category;
+
+    const submitButton = form.querySelector('button[type="submit"]');
+    submitButton.textContent = "Save Changes";
+
+    titleInput.focus();
+}
+function editPlanItem(planId, itemId) {
+    const selectedPlan = plans.find(
+        plan => plan.id === planId
+    );
+    if (!selectedPlan)
+        return;
+
+    const selectedItem = selectedPlan.items.find(
+        item => item.id === itemId
+    );
+    if (!selectedItem)
+        return;
+
+    activePlanId = planId;
+    editingItemId = itemId;
+
+    planItemTitleInput.value = selectedItem.title;
+    planItemTypeInput.value = selectedItem.type;
+
+    planItemForm.hidden = false;
+    const submitButton = planItemForm.querySelector(
+        'button[type="submit"]'
+    );
+    submitButton.textContent = "Save Changes";
+    planItemTitleInput.focus();
+}
+
+function deletePlanItem(planId, itemId) {
+    const selectedPlan = plans.find(
+        plan => plan.id === planId
+    );
+    if (!selectedPlan)
+        return;
+
+    const selectedItem = selectedPlan.items.find(
+        item => item.id === itemId
+    );
+    if (!selectedItem) 
+        return;
+
+    const confirmed = confirm(
+        `Are you sure you want to delete "${selectedItem.title}"?`
+    );
+    if (!confirmed)
+        return
+
+    selectedPlan.items = selectedPlan.items.filter(
+        item => item.id !== itemId
+    );
+    localStorage.setItem(
+        PLANS_STORAGE_KEY,
+        JSON.stringify(plans)
+    );
+    renderPlans();
+    alert("Task Deleted Successfully");
+}
+
+function deletePlan(planId) {
+    const selectedPlan = plans.find(
+        plan => plan.id === planId
+    );
+    if (!selectedPlan)
+        return;
+    const confirmed = confirm(
+        `Are you sure you want to delete the "${selectedPlan.title}" plan and its tasks?`
+    );
+    if (!confirmed)
+        return;
+
+    plans = plans.filter(
+        plan => plan.id !== planId
+    );
+    localStorage.setItem(
+        PLANS_STORAGE_KEY,
+        JSON.stringify(plans)
+    );
+    renderPlans();
+    alert("Plan Deleted Successfully");
+}
+
+function render() {
+    renderCalendar();
+    renderList();
+    renderPlans();
+}
+
+function setView(view) {
+    const showCalendar = view === "calendar";
+    const showList = view === "list";
+    const showPlans = view === "plans";
+
+    calendarView.hidden = !showCalendar;
+    listView.hidden = !showList;
+    plansView.hidden = !showPlans;
+
+    calendarButton.classList.toggle("active", showCalendar);
+    listButton.classList.toggle("active", showList);
+    plansButton.classList.toggle("active", showPlans);
+
+    calendarButton.setAttribute(
+        "aria-pressed", String(showCalendar)
+    );
+
+    listButton.setAttribute(
+        "aria-pressed", String(showList)
+    );
+
+    plansButton.setAttribute(
+        "aria-pressed", String(showPlans)   
+    );
+}
+
+form.addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    const newEvent = {
+        id: editingEventId !== null ? editingEventId : Date.now(),
+        title: titleInput.value.trim(),
+        date: dateInput.value,
+        time: timeInput.value,
+        category: categoryInput.value
+    };
+
+    if (!newEvent.title || !newEvent.date) return;
+
+    let successMessage;
+
+    if(editingEventId !== null) {
+        events = events.map(event =>
+            event.id === editingEventId ? newEvent : event
+        );
+
+        successMessage = "Item Updated Successfully";
+        editingEventId = null;
+    } else {
+    events.push(newEvent);
+
+    successMessage = "Task Added Successfully";
+
+    }
+    console.log("Event added:", newEvent);
+    console.log("Events before saving:", events);
+    // Save array of updated events
+    localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(events)
+    );
+
+    console.log(
+        "Saved events:",
+        localStorage.getItem(STORAGE_KEY)
+    );
+    // Updated event array is saved to localStorage
+    //localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
+
+    // Display the month containing the newly added event.
+    const [year, month] = newEvent.date.split("-").map(Number);
+    displayedMonth = new Date(year, month - 1, 1);
+
+    render();
+    setView("calendar");
+    alert(successMessage);
+
+    form.reset();
+    editingEventId = null;
+    const submitButton = form.querySelector('button[type="submit"]');
+    submitButton.textContent = "Add"
+    dateInput.value = formatDate(today);
+    titleInput.focus();
+});
+
+planForm.addEventListener("submit", event => {
+    event.preventDefault();
+    
+    const newPlan = {
+        id: Date.now(),
+        title: planTitleInput.value.trim(),
+        description: planDescriptionInput.value.trim(),
+        targetDate: planTargetDateInput.value,
+        items: []
+    };
+    plans.push(newPlan);
+    localStorage.setItem(
+        PLANS_STORAGE_KEY,
+        JSON.stringify(plans)
+    );
+    planForm.reset();
+    planForm.hidden = true;
+    renderPlans();
+    alert("Plan Created Successfully");
+});
+
+calendarButton.addEventListener("click", () => {
+    setView("calendar");
+});
+
+listButton.addEventListener("click", () => {
+    setView("list");
+});
+
+plansButton.addEventListener("click", () => {
+    setView("plans");
+});
+
+addPlanButton.addEventListener("click", () => {
+    planForm.hidden = false;
+    planTitleInput.focus();
+});
+
+cancelPlanButton.addEventListener("click", () => {
+    planForm.reset();
+    planForm.hidden = true;
+});
+
+planItemForm.addEventListener("submit", event => {
+    event.preventDefault();
+    const selectedPlan = plans.find(
+        plan => plan.id === activePlanId
+    );
+    if (!selectedPlan) 
+        return;
+
+    const existingItem = selectedPlan.items.find(
+        item => item.id === editingItemId
+    );
+    const newItem = {
+        id: editingItemId !== null ? editingItemId : Date.now(),
+        title: planItemTitleInput.value.trim(),
+        type: planItemTypeInput.value,
+        completed: existingItem ? existingItem.completed : false
+    };
+    if (editingItemId !== null) {
+        selectedPlan.items = selectedPlan.items.map(item =>
+            item.id === editingItemId ? newItem : item
+        );
+    } else {
+        selectedPlan.items.push(newItem);
+    }
+    localStorage.setItem(
+        PLANS_STORAGE_KEY,
+        JSON.stringify(plans)
+    );
+    planItemForm.reset();
+    planItemForm.hidden = true;
+    activePlanId = null;
+    editingItemId = null;
+
+    planItemForm.querySelector(
+        'button[type="submit"]'
+    ).textContent = "Add Task";
+
+    renderPlans();
+    alert("Task Added Successfully");
+});
+
+cancelItemButton.addEventListener("click", () => {
+    planItemForm.reset();
+    planItemForm.hidden = true;
+    activePlanId = null;
+    editingItemId = null;
+
+    planItemForm.querySelector(
+        'button[type="submit"]'
+    ).textContent = "Add Task";
+});
+
+document.getElementById("previous-month")
+    .addEventListener("click", () => {
+        displayedMonth.setMonth(displayedMonth.getMonth() - 1);
+        render();
+    });
+
+document.getElementById("next-month")
+    .addEventListener("click", () => {
+        displayedMonth.setMonth(displayedMonth.getMonth() + 1);
+        render();
+    });
+
+document.getElementById("today-button")
+    .addEventListener("click", () => {
+        displayedMonth = new Date(
+            today.getFullYear(),
+            today.getMonth(),
+            1
+        );
+        render();
+    });
+
+// Draw the initial calendar and list.
+render();
