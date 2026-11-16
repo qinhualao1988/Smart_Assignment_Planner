@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Student Planner</title>
+        <link rel="stylesheet" href="planner.css">
+    </head>
+    <body>
+        <header>
+            <h1>Student Planner</h1>
+            <p>You can do anything if you take it one step at a time</p>
+        </header>
+        <main>
+            <section class="panel">
+                <h2>Add an assignment</h2>
+                <form id="event-form" class="event-form">
+                    <label>
+                        Title of Assignment
+                        <input id="event-title" type="text"
+                        placeholder="What's next on the agenda?"
+                        required maxlength="100">
+                    </label>
+                    <label>
+                        Date
+                        <input id="event-date" type="date" required>
+                    </label>
+                    <label>
+                        Time
+                        <input id="event-time" type="time">
+                    </label>
+                    <label>
+                        Category
+                        <select id="event-category">
+                            <option value="class">Class</option>
+                            <option value="assignment">Assignment</option>
+                            <option value="exam">Exam</option>
+                            <option value="meeting">Meeting</option>
+                            <option value="personal">Personal</option>
+                        </select>
+                    </label>
+                    <button class="primary" type="submit">
+                        Add
+                    </button>
+                </form>
+            </section>
+
+            <section style="margin-top: 25px;">
+                <div class="toolbar">
+                    <div>
+                        <button id="previous-month"
+                            aria-label="Previous Month">←</button>
+                        <button id="today-button">Today</button>
+                        <button id="next-month"
+                            aria-label="Next Month">→</button>
+                    </div>
+                    <div class="view-controls" aria-label="Planner View">
+                        <button id="calendar-button"
+                            class="active"
+                            aria-pressed="true">Calendar</button>
+                        <button id="list-button"
+                            aria-pressed="false">List</button>
+                        <button id="plans-button" aria-pressed="false">Plans</button>
+                    </div>
+                </div>
+                <div class="panel">
+                    <h2 id="view-heading" aria-live="polite"></h2>
+                    <div id="calendar-view">
+                        <div class="calendar" id="calendar-grid"></div>
+                    </div>
+                    <div id="list-view" hidden>
+                        <h2>Scheduled Events</h2>
+                        <div id="event-list"></div>
+                    </div>
+                    <div id="plans-view" hidden>
+                        <div class="plans-header">
+                            <h2>My Plans</h2>
+                            <button type="button" id="add-plan-button">Create Plan</button>
+                        </div>
+                            <!-- Create Plan Form -->
+                            <form id="plan-form" class="plan-form" hidden>
+                                <h3>Create a new Plan</h3>
+                            <label for="plan-title">Plan Name</label>
+                            <input
+                                type="text"
+                                id="plan-title"
+                                placeholder="e.g. Principles of Programming Languages Final Prep" required>
+                            
+                            <label for="plan-description">Description (Optional)</label>
+                            <textarea
+                                id="plan-description"
+                                placeholder="What would you like to accomplish?"
+                                rows="3"
+                            ></textarea>
+                            <label for="plan-target-date">Target Date (Optional)</label>
+                            <input type="date" id="plan-target-date">
+                            <div class="plan-form-buttons">
+                                <button type="submit">Save Plan</button>
+                                <button type="button" id="cancel-plan-button">Cancel</button>
+                            </div>
+                            </form>
+                            <!-- Add Task Form -->
+                            <form id="plan-item-form" class="plan-form" hidden>
+                                <h3>Add an Item</h3>
+                                <label for="plan-item-title">Task Name</label>
+                                <input
+                                    type="text"
+                                    id="plan-item-title"
+                                    placeholder="e.g. Review Notes and Homework" required
+                                >
+                                <label for="plan-item-type">Task Type</label>
+                                <select id="plan-item-type">
+                                    <option value="task">Task</option>
+                                    <option value="milestone">Milestone</option>
+                                </select>
+                                <div class="plan-form-buttons">
+                                    <button type="submit">Add Task</button>
+                                    <button type="button" id="cancel-item-button">Cancel</button>
+                                </div>
+                            </form>
+                        <!-- Saved Plans -->
+                        <div id="plans-container"></div>        
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+        <script src="plannerScript.js" defer></script>
+    </body>
+</html> 
