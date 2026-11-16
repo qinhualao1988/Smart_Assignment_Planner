@@ -1,2 +1,5 @@
 # venv directory and content
 .venv/
+
+# pythn cache path
+__pycache__
