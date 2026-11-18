@@ -1,0 +1,124 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignment Management</title>
+
+    <link rel="stylesheet" href="Assignment.css">
+    <script src="Assignment.js" defer></script>
+</head>
+
+<body>
+
+    <header class="site-header">
+        <h1>Assignment Management</h1>
+        <p>Manage and track your assignments</p>
+    </header>
+
+    <main>
+        <section class="panel tasks-panel">
+
+            <div class="tasks-heading">
+                <div>
+                    <h2>All Tasks</h2>
+                    <p>Everything you are planning.</p>
+                </div>
+
+                <label class="search-wrap">
+                    <span class="visually-hidden">Search tasks</span>
+
+                    <input
+                        id="search-tasks"
+                        type="search"
+                        placeholder="⌕ Search tasks..."
+                    >
+                </label>
+            </div>
+
+            <!-- Filters and Sorting -->
+            <div class="task-toolbar">
+
+                <div class="tabs" role="group" aria-label="Filter tasks">
+
+                    <button
+                        type="button"
+                        class="tab active"
+                        data-filter="all"
+                        aria-pressed="true">
+                        All
+                    </button>
+
+                    <button
+                        type="button"
+                        class="tab"
+                        data-filter="pending"
+                        aria-pressed="false">
+                        Pending
+                    </button>
+
+                    <button
+                        type="button"
+                        class="tab"
+                        data-filter="completed"
+                        aria-pressed="false">
+                        Completed
+                    </button>
+
+                </div>
+
+                <label class="sort-wrap">
+                    Sort:
+
+                    <select id="sort-tasks">
+                        <option value="date">Due date</option>
+                        <option value="title">Title of Assignment</option>
+                    </select>
+                </label>
+
+            </div>
+
+            <!-- Assignment List -->
+            <section id="list-view" aria-label="Task list">
+                <div id="event-list" class="task-list"></div>
+            </section>
+
+        </section>
+    </main>
+
+    <!-- Assignment Details Popup -->
+    <div id="details-modal" class="modal" hidden>
+
+        <div class="modal-content">
+
+            <button
+                type="button"
+                id="close-modal"
+                class="close-button"
+                aria-label="Close details">
+                &times;
+            </button>
+
+            <h2>Assignment Details</h2>
+
+            <div id="details-content"></div>
+
+            <button
+                type="button"
+                id="modal-close-bottom"
+                class="primary">
+                Close
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- Back Button -->
+    <button id="back-button" type="button">
+        ← Back to Add Assignment
+    </button>
+
+</body>
+</html>
