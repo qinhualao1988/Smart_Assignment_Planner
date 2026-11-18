@@ -6,7 +6,7 @@ const inputPanels = [
     {
         id: "url-panel",
         title: "Import from URL",
-        description: "Read calendar information from a calendar URL."
+        description: "Read calendar information from a D2L calendar URL."
     },
     {
         id: "upload-panel",
@@ -60,6 +60,31 @@ inputPanels.forEach(({id, title, description}) => {
 
 
     panelContainer.appendChild(panel);
+})
+
+// event handler allow use click empty area to close current panel
+document.addEventListener("click", function (event) {
+
+    const clickedPanel = event.target.closest(".input-panel")
+    if (clickedPanel) {
+        return
+    }
+
+    const expandedPanel = panelContainer.querySelector(".is-expanded")
+    if (!expandedPanel) {
+        return
+    }
+
+    const summary = expandedPanel.querySelector(".panel-summary")
+    const content = expandedPanel.querySelector(".panel-content")
+
+    resetInputPanel(
+        panelContainer,
+        expandedPanel,
+        summary,
+        content
+    )
+    
 })
 
 /* the URL panel helpers */
@@ -122,7 +147,7 @@ function handlerUrlSubmit(event, urlInput) {
 
             // read existing dashboard events
             const saveEvents = JSON.parse(
-                localStorage.getItem("plannerEvents") || "[]"
+                localStorage.getItem("plannerEvents") || "[]"    
             )
 
             // avoid add the same event
@@ -154,7 +179,7 @@ function handlerUrlSubmit(event, urlInput) {
             console.table(storedEvents);
 
             // url import success feedback
-            alert("Calendar imported successfully")
+            alert(`Calendar Imported Successfully.\nadded ${newEvents.length} new events.`)
 
             // transit to the dashboard page
             window.location.href = "/html/dashboard.html"
@@ -184,7 +209,7 @@ function setupUrlPanel(panelContainer, panel, summary) {
     // Create the input label.
     const urlLabel = document.createElement("label");
     urlLabel.htmlFor = "calendar-url";
-    urlLabel.textContent = "Paste your calendar URL";
+    urlLabel.textContent = "Paste your D2L calendar URL";
 
     // Create the URL input.
     const urlInput = document.createElement("input");
@@ -203,8 +228,8 @@ function setupUrlPanel(panelContainer, panel, summary) {
     // create back-to-home button
     const homeButton = document.createElement("button")
     homeButton.type = "button"
-    homeButton.className = "back-home-button"
-    homeButton.textContent = "Back to Home"
+    homeButton.className = "close-panel-button"
+    homeButton.textContent = "Close"
 
     // Add the controls to the form.
     urlForm.appendChild(urlLabel);
