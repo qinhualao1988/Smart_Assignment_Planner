@@ -287,8 +287,13 @@ function setupUploadPanel(panelContainer, panel, summary) {
 
     uploadContent.appendChild(instruction);
 
-    // 'dragover' event handler
-    // activate when 'dragover' a file hovering this panel
+    setupLoadDragFeedback(panel)
+
+    /*
+     * 'dragover' event handler
+     *  activate when 'dragover' a file hovering this panel
+     */
+
     panel.addEventListener("dragover", function(e) {
         e.preventDefault()
         e.dataTransfer.dropEffect = "copy"
@@ -315,9 +320,11 @@ function setupUploadPanel(panelContainer, panel, summary) {
         console.log("dropped files: ", file)
     })
 
-    uploadContent.appendChild(dropArea);
+    uploadContent.appendChild(dropArea)
 
-    panel.appendChild(uploadContent);
+    panel.appendChild(uploadContent)
+
+    panel.appendChild(createUploadDragOverLay())    // pass in a function
 
     // add event handler
     panel.addEventListener("click", function() {
@@ -331,6 +338,57 @@ function setupUploadPanel(panelContainer, panel, summary) {
     })
 }
 
+/*--------------dragober feedback layer for file upload panel ---------------- */
+function createUploadDragOverLay() {
+    const overlay = document.createElement("div")
+    overlay.className = "upload-drag-overlay"
+    overlay.setAttribute("aria-hidden", "true")
+
+    const icon = document.createElement("span")
+    icon.className = "upload-drag-icon"
+    icon.textContent = "+"    // replace it by real icon late on
+
+    const message = document.createElement("span")
+    message.textContent = "Drop your .ics file here"    // hardcode textcontent
+
+    overlay.append(icon, message)
+    return overlay
+}
+
+function setupLoadDragFeedback(panel) {
+    
+    let fileDragDepth = 0
+
+    panel.addEventListener("dragenter", function(e) {
+        
+        // if panel not expaned and not drag a file, keep overlay hidden
+        if (!panel.classList.contains("is-expanded") || !e.dataTransfer.types.includes("Files")) {
+            return
+        }
+
+        // show overlay and keep traking fileDrageDepth
+        fileDragDepth += 1
+        panel.classList.add("is-dragging")
+    })
+
+    panel.addEventListener("dragleave", function(e) {
+
+        fileDragDepth = Math.max(0, fileDragDepth - 1)
+
+        if (fileDragDepth === 0) {
+            panel.classList.remove("is-dragging")
+        }
+    })
+
+    
+    panel.addEventListener("drop", function() {
+        // while drop the file, 'fileDragDepth turn to 0,
+        fileDragDepth = 0
+        // remove the tag to hidden the overlay
+        panel.classList.remove("is-dragging")
+    })
+}
+ 
 // upload panel helper function
 function handleFileUpload(file, instruction) {
     // no uploaded file handling
