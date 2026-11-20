@@ -50,12 +50,12 @@ inputPanels.forEach(({id, title, description}) => {
 
     // upload file panel
     if (id === "upload-panel") {
-        setupUploadPanel(panelContainer, panel, summary)
+        uploadPanel(panelContainer, panel, summary)
     }
 
     // add event on new assignment panel
     if (id === 'assignment-panel') {
-        setupAssignmentPanel(panelContainer, panel, summary)
+        assignmentPanel(panelContainer, panel, summary)
     }
 
 
@@ -121,9 +121,12 @@ function expandInputPanel(panelContainer, panel, summary, content, focusElement)
     focusElement.focus()    // focus() put caret in the input box directly w/o another click
 }
 
-function handlerUrlSubmit(event, urlInput) {
+function handlerUrlSubmit(event, urlInput, errorMessage) {
 
     event.preventDefault()    //prevent the browser's default form submission
+
+    errorMessage.textContent = ""
+    errorMessage.hidden = true
 
     const url = urlInput.value.trim()    // read user pasted url value
 
@@ -186,6 +189,9 @@ function handlerUrlSubmit(event, urlInput) {
         })
         .catch(error => {
             console.error(error)
+            errorMessage.textContent = "invalid url, please re-check and insert"
+            errorMessage.hidden = false
+            urlInput.focus()
         })
 }
 
@@ -219,6 +225,12 @@ function setupUrlPanel(panelContainer, panel, summary) {
     urlInput.placeholder = "https://example.com/calendar.ics";
     urlInput.required = true;
 
+    // add error notification
+    const errorMessage = document.createElement("p")
+    errorMessage.className = "url-import-error"
+    errorMessage.setAttribute("role", "alert")
+    errorMessage.hidden = true
+
     // Create the submit button.
     const readButton = document.createElement("button");
     readButton.type = "submit";
@@ -232,9 +244,10 @@ function setupUrlPanel(panelContainer, panel, summary) {
     homeButton.textContent = "Close"
 
     // Add the controls to the form.
-    urlForm.appendChild(urlLabel);
-    urlForm.appendChild(urlInput);
-    urlForm.appendChild(readButton);
+    urlForm.appendChild(urlLabel)
+    urlForm.appendChild(urlInput)
+    urlForm.appendChild(errorMessage)
+    urlForm.appendChild(readButton)
     urlForm.appendChild(homeButton)
 
     // Add the hidden form to the panel.
@@ -247,7 +260,15 @@ function setupUrlPanel(panelContainer, panel, summary) {
 
     // add submit handler
     urlForm.addEventListener("submit", function(event) {
-        handlerUrlSubmit(event, urlInput)
+        handlerUrlSubmit(event, urlInput, errorMessage)
+    })
+
+    // add input handler: when user clear url, clear error message
+    urlInput.addEventListener("input", function() {
+        if(urlInput.value.trim() === "") {
+            errorMessage.textContent = ""
+            errorMessage.hidden = true
+        }
     })
 
     // add back to home button handler
@@ -261,7 +282,7 @@ function setupUrlPanel(panelContainer, panel, summary) {
 
 /* upload file panel */
 // Create the hidden content for the upload panel.
-function setupUploadPanel(panelContainer, panel, summary) {
+function uploadPanel(panelContainer, panel, summary) {
     // allow the panel t receive focus through JS
     panel.tabIndex = -1
 
@@ -333,7 +354,7 @@ function setupUploadPanel(panelContainer, panel, summary) {
             panel,
             summary,
             uploadContent,
-            panel                 // why two panel argue??
+            panel
         )
     })
 }
@@ -448,7 +469,7 @@ function handleFileUpload(file, instruction) {
 }
 
 /* manually add assignment panel function and related helpers */
-function setupAssignmentPanel(panelContainer, panel, summary) {
+function assignmentPanel(panelContainer, panel, summary) {
 
     // content container
     const assignmentContent = document.createElement("div")
@@ -466,7 +487,7 @@ function setupAssignmentPanel(panelContainer, panel, summary) {
     createButton.textContent = "Create"
 
     // add event handler on button
-    createButton.addEventListener("click", function (e) {
+    createButton.addEventListener("click", function(e) {
         e.stopPropagation()
 
         openDashboardPage()

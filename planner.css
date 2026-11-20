@@ -153,6 +153,18 @@ select:focus-visible {
     min-width: 0;
     max-width: 100%;
 }
+ /* url input error style*/
+.url-import-error {
+    margin: 0;
+    color: #b42318;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.url-import-error::before {
+    content: "⚠";
+    margin-right: 6px;
+}
 
 .event-form {
     display: grid;
@@ -323,21 +335,21 @@ select:focus-visible {
     display: none;
 }
 
-/* Center the heading and content inside the expanded assignment panel. */
+/* Keep the expanded assignment panel aligned with the other panels. */
 #assignment-panel.is-expanded {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
+    align-items: stretch;
+    text-align: left;
 }
 
 /* Arrange the assignment instruction and buttons vertically. */
 .assignment-panel-content {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
     gap: 16px;
+    width: 100%;
 }
 
 /* Remove default spacing around the instruction. */
