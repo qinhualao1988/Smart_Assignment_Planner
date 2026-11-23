@@ -298,6 +298,10 @@ function uploadPanel(panelContainer, panel, summary) {
     feedbackMessage.className = "file-upload-feedback"
     feedbackMessage.setAttribute("role", "alert")
     feedbackMessage.hidden = true
+
+    // it is for showing file's name
+    let selectedFile = null
+
     instruction.textContent = "Drag your .ics file here";
 
     // Create the drop area.
@@ -340,7 +344,29 @@ function uploadPanel(panelContainer, panel, summary) {
 
         // get dropped file
         const file = e.dataTransfer.files[0]
-        handleFileUpload(file, instruction, feedbackMessage)
+
+        if (!file) {
+            return
+        }
+
+        // wrong file type handling
+        if (!file.name.toLowerCase().endsWith(".ics")) {
+            selectedFile = null
+            fileName.textContent = ""
+            fileName.hidden = true
+            submitButton.hidden = true
+            feedbackMessage.textContent = "Please drop an .ics calendar file."
+            feedbackMessage.hidden = false
+            return
+        }
+
+        // show file name, submit button, hide feedback message 
+        selectedFile = file
+        fileName.textContent = file.name
+        fileName.hidden = false
+        submitButton.hidden = false
+        feedbackMessage.textContent = ""
+        feedbackMessage.hidden = true
 
         // for testing
         console.log("dropped files: ", file)
@@ -348,6 +374,35 @@ function uploadPanel(panelContainer, panel, summary) {
 
     uploadContent.appendChild(dropArea)
     uploadContent.appendChild(feedbackMessage)
+
+    // uploaded file name and submit button
+    const fileName = document.createElement("p")
+    fileName.className = "selected-file-name"
+    fileName.hidden = true
+
+    const submitButton = document.createElement("button")
+    submitButton.type = "button"
+    submitButton.className = "primary"
+    submitButton.textContent = "Submit"
+    submitButton.hidden = true
+
+    uploadContent.append(fileName, submitButton)
+
+    submitButton.addEventListener("click", function (event) {
+    event.stopPropagation()
+
+    if (!selectedFile) {
+        return
+    }
+
+    submitButton.disabled = true
+
+    handleFileUpload(selectedFile, instruction, feedbackMessage)
+        .finally(function () {
+            submitButton.disabled = false
+        })
+    })
+
 
     panel.appendChild(uploadContent)
 
@@ -421,13 +476,6 @@ function handleFileUpload(file, instruction, feedbackMessage) {
     // no uploaded file handling
     if(!file) {
         return
-    }
-
-    // send feedback if user drag a differnt file type
-    if (!file.name.toLowerCase().endsWith(".ics")) {
-    feedbackMessage.textContent = "Please drop an .ics calendar file."
-    feedbackMessage.hidden = false
-    return
     }
 
     feedbackMessage.textContent = ""
