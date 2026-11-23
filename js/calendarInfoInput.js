@@ -293,6 +293,11 @@ function uploadPanel(panelContainer, panel, summary) {
 
     // Create the instruction text.
     const instruction = document.createElement("p");
+    const feedbackMessage = document.createElement("p")
+    
+    feedbackMessage.className = "file-upload-feedback"
+    feedbackMessage.setAttribute("role", "alert")
+    feedbackMessage.hidden = true
     instruction.textContent = "Drag your .ics file here";
 
     // Create the drop area.
@@ -335,13 +340,14 @@ function uploadPanel(panelContainer, panel, summary) {
 
         // get dropped file
         const file = e.dataTransfer.files[0]
-        handleFileUpload(file, instruction)
+        handleFileUpload(file, instruction, feedbackMessage)
 
         // for testing
         console.log("dropped files: ", file)
     })
 
     uploadContent.appendChild(dropArea)
+    uploadContent.appendChild(feedbackMessage)
 
     panel.appendChild(uploadContent)
 
@@ -411,11 +417,21 @@ function setupLoadDragFeedback(panel) {
 }
  
 // upload panel helper function
-function handleFileUpload(file, instruction) {
+function handleFileUpload(file, instruction, feedbackMessage) {
     // no uploaded file handling
     if(!file) {
         return
     }
+
+    // send feedback if user drag a differnt file type
+    if (!file.name.toLowerCase().endsWith(".ics")) {
+    feedbackMessage.textContent = "Please drop an .ics calendar file."
+    feedbackMessage.hidden = false
+    return
+    }
+
+    feedbackMessage.textContent = ""
+    feedbackMessage.hidden = true
 
     const formData = new FormData()
     formData.append("file", file)
@@ -463,8 +479,9 @@ function handleFileUpload(file, instruction) {
         window.location.href = "/html/dashboard.html"
 
     }).catch(error => {
-        instruction.textContent = error.message
-        console.log(error)
+        instruction.textContent = "Drag your .ics file here"
+        feedbackMessage.textContent = "Could not import the calendar. Check the .ics file and try again."
+        feedbackMessage.hidden = false
     })
 }
 

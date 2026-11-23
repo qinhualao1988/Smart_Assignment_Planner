@@ -154,14 +154,16 @@ select:focus-visible {
     max-width: 100%;
 }
  /* url input error style*/
-.url-import-error {
+.url-import-error,
+.file-upload-feedback {
     margin: 0;
     color: #b42318;
     font-size: 0.9rem;
     font-weight: 700;
 }
 
-.url-import-error::before {
+.url-import-error::before,
+.file-upload-feedback::before {
     content: "⚠";
     margin-right: 6px;
 }
