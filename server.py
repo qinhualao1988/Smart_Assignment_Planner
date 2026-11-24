@@ -24,6 +24,7 @@ def page_asset(filename):
         "html/calendarInfoInput.html",
         "js/calendarInfoInput.js",
         "html/dashboard.html", "js/plannerScript.js", "planner.css",
+        "Assignment.html", "Assignment.css", "Assignment.js",
     }
     if filename not in allowed:
         return jsonify({"error": "Not found"}), 404

@@ -573,5 +573,5 @@ function assignmentPanel(panelContainer, panel, summary) {
 
 // 3rd panel helper -- open dashboard page
 function openDashboardPage() {
-    window.location.href = "../html/dashboard.html"
+    window.location.href = "/Assignment.html"
 }
